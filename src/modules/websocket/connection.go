@@ -6,22 +6,22 @@ import (
 	"sync"
 )
 
-type Socket struct {
+type Connection struct {
 	Id     string
 	Role   string
 	socket *websocket.Conn
 	mutex  sync.Mutex
 }
 
-func (s *Socket) GetId() string {
+func (s *Connection) GetId() string {
 	return s.Id
 }
 
-func (s *Socket) GetRole() string {
+func (s *Connection) GetRole() string {
 	return s.Role
 }
 
-func (s *Socket) SendCommand(command entities.Command) {
+func (s *Connection) SendCommand(command entities.Command) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	packet := PacketFromCommand(command)
@@ -32,7 +32,7 @@ func (s *Socket) SendCommand(command entities.Command) {
 	}
 }
 
-func (s *Socket) SendError(error string) {
+func (s *Connection) SendError(error string) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	packet := ErrorPacket{

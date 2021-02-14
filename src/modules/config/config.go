@@ -30,6 +30,7 @@ func GetConfig() *config {
 		if err != nil {
 			panic(err)
 		}
+		defer configFile.Close()
 
 		configContents, err := ioutil.ReadAll(configFile)
 		if err != nil {
