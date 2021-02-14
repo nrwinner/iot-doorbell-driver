@@ -1,15 +1,20 @@
 package main
 
 import (
-	"camera/src/modules/discovery"
+	"doorbell-camera/src/modules/config"
+	"doorbell-camera/src/modules/discovery"
 	"time"
 )
 
 func main() {
-	serverChan := make(chan string)
 	hasConnection := false
+	serverChan := make(chan string)
 	connectionLost := make(chan bool)
 
+	// request config to force read from file
+	config.GetConfig()
+
+	// main application loop - discover server -> do work -> lose connection -> repeat
 	for {
 		if hasConnection {
 			// wait for connection lost to signal and flip flag

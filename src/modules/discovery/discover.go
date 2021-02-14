@@ -1,22 +1,16 @@
 package discovery
 
 import (
+	"doorbell-camera/src/modules/config"
 	"net"
 	"time"
-)
-
-const (
-	broadcastPort    = "9999"
-	receivePort      = "9998"
-	broadcastAddress = "255.255.255.255"
-	marco            = "marco"
-	polo             = "polo"
 )
 
 // Attempt to locate the server on the network using a UDP packet.
 // Broadcasts a question packet and listens for a corresponding answer packet
 func Discover(r chan string) {
-	pc, err := net.ListenPacket("udp4", ":"+receivePort)
+	c := config.GetConfig()
+	pc, err := net.ListenPacket("udp4", ":"+c.DiscoveryReceivePort)
 	if err != nil {
 		// assume no connection, noop
 		return
@@ -28,14 +22,14 @@ func Discover(r chan string) {
 	defer pc.Close()
 
 	// resolve UDP address
-	udpAddress, err := net.ResolveUDPAddr("udp4", broadcastAddress+":"+broadcastPort)
+	udpAddress, err := net.ResolveUDPAddr("udp4", c.DiscoveryBroadcastAddress+":"+c.DiscoveryBroadcastPort)
 	if err != nil {
 		// UDP address could not be resolved
 		panic(err)
 	}
 
 	// broadcast marco packet to address
-	_, err = pc.WriteTo([]byte(marco), udpAddress)
+	_, err = pc.WriteTo([]byte(c.DiscoveryQuestion), udpAddress)
 
 	// Loop until one of the following conditions is met
 	// 1. A response is located matching the answer
@@ -51,7 +45,7 @@ func Discover(r chan string) {
 		} else {
 			// we have a packet, check for match
 			// verify that response is the answer to the question
-			if string(buffer[:packetLength]) == polo {
+			if string(buffer[:packetLength]) == c.DiscoveryAnswer {
 				// respond with the address of the server
 				r <- serverAddress.String()
 				break
