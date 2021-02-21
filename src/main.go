@@ -4,6 +4,7 @@ import (
 	"doorbell-camera/src/entities"
 	"doorbell-camera/src/modules/config"
 	"doorbell-camera/src/modules/discovery"
+	"doorbell-camera/src/modules/webrtc"
 	"doorbell-camera/src/modules/websocket"
 	"strings"
 	"time"
@@ -39,6 +40,7 @@ func main() {
 				go start(addressParts[0], connectionLost)
 			} else {
 				// connection is not found
+				println("Connection not found, sleeping...")
 				time.Sleep(5 * time.Second)
 			}
 		}
@@ -48,5 +50,7 @@ func main() {
 // Takes the address of the server and makes appropriate connections to various servers
 // Writes to lostConnection when a connection could not be established or is lost after being established
 func start(server string, lostConnection chan bool) {
-	go websocket.Connect(server, []entities.Controller{}, lostConnection)
+	go websocket.Connect(server, []entities.Controller{
+		&webrtc.WebRTCController{},
+	}, lostConnection)
 }

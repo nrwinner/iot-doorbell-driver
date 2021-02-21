@@ -7,8 +7,9 @@ import (
 	"sync"
 )
 
-type config struct {
-	Id   string
+// Config houses stuff
+type Config struct {
+	ID   string
 	Role string
 
 	DiscoveryQuestion         string
@@ -18,12 +19,16 @@ type config struct {
 	DiscoveryReceivePort      string
 
 	WebsocketPort string
+
+	VideoDevicesID int
+	AudioDeviceID  int
 }
 
-var singleton *config
+var once = sync.Once{}
+var configSingleton *Config = &Config{}
 
-func GetConfig() *config {
-	once := sync.Once{}
+// GetConfig retrieves a singleton config object
+func GetConfig() *Config {
 	once.Do(func() {
 		// on first load, read config file into the singleton variable
 		configFile, err := os.Open("config.json")
@@ -37,8 +42,9 @@ func GetConfig() *config {
 			panic(err)
 		}
 
-		json.Unmarshal(configContents, &singleton)
+		// unmarshal the config contents into the
+		json.Unmarshal(configContents, configSingleton)
 	})
 
-	return singleton
+	return configSingleton
 }

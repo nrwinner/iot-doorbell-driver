@@ -8,7 +8,9 @@ const (
 )
 
 type Packet struct {
-	PacketType string
+	PacketType     string
+	FromId         string
+	TargetDeviceId string
 }
 
 type CommandPacket struct {
@@ -26,15 +28,19 @@ func CommandFromPacket(packet CommandPacket) entities.Command {
 	return entities.Command{
 		Path: packet.Command,
 		Args: packet.Args,
+		FromId: packet.FromId,
+		TargetDeviceId: packet.TargetDeviceId,
 	}
 }
 
 func PacketFromCommand(command entities.Command) CommandPacket {
-	return CommandPacket {
+	return CommandPacket{
 		Packet: Packet{
-			PacketType: COMMAND_PACKET,
+			PacketType:     COMMAND_PACKET,
+			FromId:         command.FromId,
+			TargetDeviceId: command.TargetDeviceId,
 		},
 		Command: command.Path,
-		Args: command.Args,
+		Args:    command.Args,
 	}
 }
