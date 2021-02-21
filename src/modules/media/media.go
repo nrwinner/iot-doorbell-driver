@@ -10,13 +10,13 @@ import (
 	_ "github.com/pion/mediadevices/pkg/driver/audiotest"
 
 	// side-effect needed to register the camera
-	_ "github.com/pion/mediadevices/pkg/driver/videotest"
+	_ "github.com/pion/mediadevices/pkg/driver/camera"
 
 	// load the opus codec as our audio encoder
-	videoEncoder "github.com/pion/mediadevices/pkg/codec/x264"
+	audioEncoder "github.com/pion/mediadevices/pkg/codec/opus"
 
 	// load the mmal codec as our video encoder (uses rpi hardware encoding)
-	audioEncoder "github.com/pion/mediadevices/pkg/codec/opus"
+	videoEncoder "github.com/pion/mediadevices/pkg/codec/mmal"
 )
 
 var tracksOnce = sync.Once{}
