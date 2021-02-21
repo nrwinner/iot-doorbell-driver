@@ -6,14 +6,8 @@ import (
 	"github.com/pion/mediadevices"
 	"github.com/pion/mediadevices/pkg/prop"
 
-	// side-effect needed to register the microphone
-	_ "github.com/pion/mediadevices/pkg/driver/audiotest"
-
 	// side-effect needed to register the camera
 	_ "github.com/pion/mediadevices/pkg/driver/camera"
-
-	// load the opus codec as our audio encoder
-	audioEncoder "github.com/pion/mediadevices/pkg/codec/opus"
 
 	// load the mmal codec as our video encoder (uses rpi hardware encoding)
 	videoEncoder "github.com/pion/mediadevices/pkg/codec/mmal"
@@ -29,15 +23,14 @@ type media struct {
 
 var mediaSingleton *media = &media{}
 
-// GetTracks retrieves a slice of audio/video tracks for use with the WebRTC module
+// GetTracks retrieves a slice of video tracks for use with the WebRTC module
 func GetTracks() []mediadevices.Track {
 	tracksOnce.Do(func() {
 		s, err := mediadevices.GetUserMedia(mediadevices.MediaStreamConstraints{
 			Video: func(c *mediadevices.MediaTrackConstraints) {
-				c.Width = prop.Int(1280)
-				c.Height = prop.Int(720)
+				c.Width = prop.Int(720)
+				c.Height = prop.Int(480)
 			},
-			Audio: func(c *mediadevices.MediaTrackConstraints) {},
 			Codec: GetCodecSelector(),
 		})
 
@@ -46,7 +39,7 @@ func GetTracks() []mediadevices.Track {
 			panic(err)
 		}
 
-		mediaSingleton.tracks = s.GetTracks()
+		mediaSingleton.tracks = s.GetVideoTracks()
 	})
 
 	return mediaSingleton.tracks
@@ -61,15 +54,8 @@ func GetCodecSelector() *mediadevices.CodecSelector {
 		}
 		videoEncoderParams.BitRate = 500_000 // 500kbps
 
-		// create params for new audio encoder
-		audioEncoderParams, err := audioEncoder.NewParams()
-		if err != nil {
-			panic(err)
-		}
-
 		mediaSingleton.codecSelector = mediadevices.NewCodecSelector(
 			mediadevices.WithVideoEncoders(&videoEncoderParams),
-			mediadevices.WithAudioEncoders(&audioEncoderParams),
 		)
 	})
 
